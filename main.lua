@@ -1,18 +1,11 @@
 -- COPYRIGHT: KISELEV NIKOLAY
 -- Licence: MIT
--- Bexolder
+-- BUTTONPONY
 -- Version: 0.0.1.4
 
 fur = {w = 1500, h = 750}
 turnin = {0, 0}
 if musicplay == nil then musicplay = true end
-
-Source = love.audio.newSource("mus/PACEFULL_NIGHT.mp3", "static")
-if musicplay then
-	love.audio.play(Source)
-else
-	love.audio.stop(Source)
-end
 
 function love.arch(readyarch)
 	if readyarch == nil then
@@ -90,8 +83,8 @@ function fit()
 		backimg:setFilter("nearest")
 		local w, h = love.window.getMode()
 		local iw, ih = backimg:getDimensions()
-		iw = (iw / s) * 3
-		ih = (ih / s) * 3
+		iw = (iw / s) * 100
+		ih = (ih / s) * 100
 		if w / fur.w < h / fur.h then
 			side = t[2]
 			fortouch = {0, side}
@@ -148,11 +141,11 @@ end
 
 love.window.setMode(2, 1, {fullscreen = true})
 love.window.setTitle("Bexolder")
-logo = love.graphics.newImage("lg.png")
+logo = love.graphics.newImage("bg.bmp")
 love.window.setIcon(logo:getData())
 fit()
 
-love.graphics.setDefaultFilter("linear")
+love.graphics.setDefaultFilter("nearest")
 love.graphics.setBackgroundColor(hc("#000000"))
 love.arch()
 menc = {{hc("#8c9880")}, {hc("#8c9880")}, {hc("#8c9880")}}
@@ -166,10 +159,9 @@ if love.filesystem.exists("main.ttf") then
 	}
 end
 
-mn = love.graphics.newImage("img/mn.png")
-cl = love.graphics.newImage("img/cl.png")
-fr = love.graphics.newImage("img/fr.png")
-hm = love.graphics.newImage("img/hm.png")
+pn = {}
+pn[1] = love.graphics.newImage("img/pn1.bmp")
+pn[2] = love.graphics.newImage("img/pn2.bmp")
 
 function love.keypressed(key)
 	if key == "3" then
@@ -311,14 +303,10 @@ function love.draw()
 	love.graphics.translate(t[1], t[2])
 	love.graphics.setLineStyle("smooth")
 	love.graphics.setLineWidth(1)
-	love.graphics.setColor(hc("#506844"))
-	love.graphics.paradraw(mn, 850, 500, -5)
-	love.graphics.setColor(hc("#c4c8c4"))
-	love.graphics.paradraw(cl, 1000, 350, -2)
 	love.graphics.setColor(hc("#285438"))	
-	love.graphics.paradraw(fr, 1000, 525, 4)
+	love.graphics.paradraw(pn[1], 1000, 525, 4)
 	love.graphics.setColor(hc("#c4bca8"))
-	love.graphics.paradraw(hm, 700, 550, 7)
+	love.graphics.paradraw(pn[2], 700, 550, 7)
 	love.graphics.setFont(aqua[1])
 	love.graphics.setColor(hc("#d0d4c4"))
 	love.graphics.print("Bexolder", 45 + turnin[1], 110 + turnin[2])
