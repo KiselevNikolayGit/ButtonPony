@@ -218,6 +218,9 @@ end
 -- SOMEBODY WATCHING ME!! --
 
 function oload()
+	p = love.audio.newSource("Art_Of_Escapism_-_Howling_Down.mp3", "static")
+	p:setLooping(true)
+	p:play()
 	love.graphics.setBackgroundColor(30, 30, 30)
 	love.physics.setMeter(fur.h * 0.4)
 	speed = true
