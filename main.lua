@@ -1,12 +1,13 @@
 -- COPYRIGHT: KISELEV NIKOLAY
 -- Licence: MIT
 -- BUTTONPONY
--- Version: 0.0.2.0
+-- Version: 0.0.2.1
 
 fur = {w = 1500, h = 750}
-turnin = {0, 0}
 if musicplay == nil then musicplay = true end
 
+anima = 0
+frame = 1
 colors = {
 	{226, 145, 145},
 	{153, 221, 146},
@@ -27,51 +28,6 @@ colors = {
 	{255, 101, 132},
 	{255, 101, 101}
 }
-
-function love.arch(readyarch)
-	if readyarch == nil then
-		arch = {}
-		arch[2] = love.draw
-		love.draw = nil
-		arch[6] = love.keypressed
-		love.keypressed = nil
-		arch[7] = love.keyreleased
-		love.keyreleased = nil
-		arch[10] = love.mousefocus
-		love.mousefocus = nil
-		arch[11] = love.mousemoved
-		love.mousemoved = nil
-		arch[12] = love.mousepressed
-		love.mousepressed = nil
-		arch[13] = love.mousereleased
-		love.mousereleased = nil
-		arch[14] = love.quit
-		love.quit = nil
-		arch[17] = love.textedited
-		love.textedited = nil
-		arch[18] = love.textinput
-		love.textinput = nil
-		arch[23] = love.update
-		love.update = nil
-		arch[25] = love.wheelmove
-		love.wheelmove = nil
-		return arch
-	else
-		love.draw = readyarch[2]
-		love.keypressed = readyarch[6]
-		love.keyreleased = readyarch[7]
-		love.load = readyarch[8]
-		love.mousefocus = readyarch[10]
-		love.mousemoved = readyarch[11]
-		love.mousepressed = readyarch[12]
-		love.mousereleased = readyarch[13]
-		love.quit = readyarch[14]
-		love.textedited = readyarch[17]
-		love.textinput = readyarch[18]
-		love.update = readyarch[23]
-		love.wheelmove = readyarch[25]
-	end
-end
 
 function fixmou(x, y)
 	local w, h = love.window.getMode()
@@ -152,7 +108,7 @@ function fit()
 end
 
 function love.graphics.paradraw(im, x, y, z)
-	love.graphics.draw(im, x + turnin[1] * (z / 10), y + turnin[2] * (z / 10), 0, 1, 1, im:getWidth() / 2, im:getHeight() / 2)
+	love.graphics.draw(im, x, y, 0, fur.w / 60, fur.h / 30, im:getWidth() / 2, im:getHeight() / 2)
 end
 
 love.window.setMode(2, 1, {fullscreen = true})
@@ -162,9 +118,8 @@ love.window.setIcon(logo:getData())
 fit()
 
 love.graphics.setDefaultFilter("nearest")
-love.graphics.setBackgroundColor(colors[3])
-love.arch()
-menc = {colors[1], colors[1], colors[1]}
+love.graphics.setBackgroundColor(0, 0, 0)
+menc = {{0, 0, 0}, {0, 0, 0}}
 if love.filesystem.exists("main.ttf") then
 	aqua = {
 		love.graphics.newFont("main.ttf", 170),
@@ -178,69 +133,55 @@ end
 pn = {}
 pn[1] = love.graphics.newImage("img/pn1.bmp")
 pn[2] = love.graphics.newImage("img/pn2.bmp")
+pn.y = 600
+back = love.graphics.newImage("img/sky.bmp")
+door = love.graphics.newImage("img/door.bmp")
 
-function love.keypressed(key)
-	if key == "3" then
-		love.window.setMode(2, 1, {borderless = true, fullscreen = true})
-		fit()
-	elseif key == "5" then
-		love.window.setMode(300, 300, {borderless = false, fullscreen = false})
-		fit()
-	elseif key == "4" then
-		love.window.setMode(600, 300, {borderless = true, fullscreen = false})
-		fit()
-	elseif key == "escape" then
-		pause()
-	end
+function love.wheelmoved()
+	oexit()
 end
 
 function love.mousepressed(x, y)
 	x, y = fixmou(x, y)
 	if x > 0.02 and x < 0.235 and y > 0.3 and y < 0.55 then
 		ostart()
-	elseif x > 0.02 and x < 0.15 and y > 0.55 and y < 0.7 then
-		oelse()
 	elseif x > 0.02 and x < 0.13 and y > 0.8 and y < 0.95 then
 		oexit()
 	end
 end
 
 function love.update(dt)
-	x, y = fixmou(love.mouse.getX(), love.mouse.getY())
-	if x ~= 2 and y ~= 2 then
-		turnin = {(x - 0.5) * 15, (y - 0.5) * 10}
-		if x > 0.02 and x < 0.235 and y > 0.3 and y < 0.55 then
-			menc[1] = colors[1]
-		else
-			menc[1] = colors[2]
-		end
-		if x > 0.02 and x < 0.15 and y > 0.55 and y < 0.7 then
-			menc[2] = colors[1]
-		else
-			menc[2] = colors[2]
-		end
-		if x > 0.02 and x < 0.13 and y > 0.8 and y < 0.95 then
-			menc[3] = colors[1]
-		else
-			menc[3] = colors[2]
+end
+
+function ostart()
+	love.mousepressed = otou
+	function love.update(dt)
+		if sec == nil or sec > 0.2 then
+			sec = 0
+			if pn.y < 600 then
+				pn.y = 600
+				frame = 1
+			else
+				pn.y = 550
+				frame = 2
+			end
+		else sec = sec + dt end
+		if nsec == nil or nsec > 0.01 then
+			nsec = 0
+			anima = anima + 80
+		else nsec = nsec + dt end
+		if anima > 655 then
+			frame = 0
+			if anima > 700 then
+				love.update = oupdate
+				oload()
+			end
 		end
 	end
 end
 
-function ostart()
-	love.filesystem.load("start.lua")()
-end
-
-function oelse()
-	love.filesystem.load("else.lua")()
-end
-
 function oexit()
 	love.event.quit()
-end
-
-function pause()
-	local pausearch = love.arch()
 end
 
 function love.draw()
@@ -248,29 +189,85 @@ function love.draw()
 	love.graphics.translate(t[1], t[2])
 	love.graphics.setLineStyle("smooth")
 	love.graphics.setLineWidth(1)
-	love.graphics.setColor(colors[6])	
-	love.graphics.paradraw(pn[1], 1000, 525, 4)
-	love.graphics.setColor(colors[6])
-	love.graphics.paradraw(pn[2], 700, 550, 7)
-	love.graphics.setFont(aqua[1])
-	love.graphics.setColor(colors[1])
-	love.graphics.print("ButtonPony", 45 + turnin[1], 110 + turnin[2])
-	love.graphics.setFont(aqua[2])
-	love.graphics.setColor(menc[1])
-	love.graphics.print("Start", 46 + turnin[1], 300 + turnin[2])
-	love.graphics.setFont(aqua[3])
-	love.graphics.setColor(menc[2])	
-	love.graphics.print("Else", 50 + turnin[1], 440 + turnin[2])
-	love.graphics.setFont(aqua[4])
-	love.graphics.setColor(menc[3])	
-	love.graphics.print("Exit", 50 + turnin[1], 620 + turnin[2])
+	love.graphics.setColor(255, 255, 255)
+	if anima < 700 then
+		love.graphics.paradraw(back, 750 - anima, 375)
+		love.graphics.setColor(colors[16])
+		if frame ~= 0 then love.graphics.paradraw(pn[frame], 750, pn.y) end
+		love.graphics.setColor(colors[8])
+		love.graphics.paradraw(door, 1400 - anima, 375)
+		love.graphics.setFont(aqua[1])
+		love.graphics.setColor(0, 0, 0)
+		love.graphics.print("Не Домашний Пони", 45 - anima, 110, 0, 0.42, 0.8)
+		love.graphics.setFont(aqua[2])
+		love.graphics.setColor(menc[1])
+		love.graphics.print("Начать", 46 - anima, 300, 0, 0.4, 0.8)
+		love.graphics.setFont(aqua[4])
+		love.graphics.setColor(menc[2])	
+		love.graphics.print("Уйти", 50 - anima, 620, 0, 0.4, 1)
+	else ostartdraw() end
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.draw(mesh, meshp.x1, meshp.y1)
 	love.graphics.draw(mesh, meshp.x2, meshp.y2)
-	for i,v in ipairs(colors) do
-		love.graphics.setColor(0, 0, 0)
-		love.graphics.rectangle("fill", i * 50 - 5, -30, 48, 30)
-		love.graphics.setColor(v)
-		love.graphics.print(i, i * 50, -20, 0, 0.3)
+end
+
+-- SOMEBODY WATCHING ME!! --
+-- SOMEBODY WATCHING ME!! --
+-- SOMEBODY WATCHING ME!! --
+-- SOMEBODY WATCHING ME!! --
+-- SOMEBODY WATCHING ME!! --
+
+function oload()
+	love.graphics.setBackgroundColor(30, 30, 30)
+	love.physics.setMeter(fur.h * 0.4)
+	frame = 1
+	move = 0
+	w = love.physics.newWorld(0, love.physics.getMeter() * 9.868464)
+	edges = {}
+		edges[1] = {}
+			edges[1].b = love.physics.newBody(w, 0, 0, "static")
+			edges[1].s = love.physics.newEdgeShape(0, 0, fur.w, 0)
+			edges[1].f = love.physics.newFixture(edges[1].b, edges[1].s)
+		edges[2] = {}
+			edges[2].b = love.physics.newBody(w, 0, 0, "static")
+			edges[2].s = love.physics.newEdgeShape(0, fur.h, fur.w, fur.h)
+			edges[2].f = love.physics.newFixture(edges[2].b, edges[2].s)
+	pony = {}
+		pony.b = love.physics.newBody(w, 350, 350, "dynamic")
+		pony.s = love.physics.newPolygonShape(-160, 90, -160, -0, 80, -140, 130, -140, 90, 130, 160, -0, -115, 130)
+		pony.f = love.physics.newFixture(pony.b, pony.s, 1)
+end
+
+function otou(x, y)
+	x, y = fixmou(x, y)
+	if x > 0.5 then
+		--
+	else --
 	end
+end
+
+function oupdate(dt)
+	w:update(dt)
+	----------
+	if sec == nil or sec > 0.2 then
+		sec = 0
+		if frame ~= 1 then
+			frame = 1
+		else
+			frame = 2
+		end
+	else
+		sec = sec + dt
+	end
+	----------
+	if droptime == nil or droptime > 3 then
+		droptime = 0
+		-- drop meble
+	else droptime = droptime + dt end
+	move = move + dt
+end
+
+function ostartdraw()
+	love.graphics.setColor(colors[16])
+	love.graphics.paradraw(pn[frame], pony.b:getX(), pony.b:getY())
 end
