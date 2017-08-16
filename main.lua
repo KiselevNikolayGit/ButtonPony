@@ -1,11 +1,32 @@
 -- COPYRIGHT: KISELEV NIKOLAY
 -- Licence: MIT
 -- BUTTONPONY
--- Version: 0.0.1.4
+-- Version: 0.0.2.0
 
 fur = {w = 1500, h = 750}
 turnin = {0, 0}
 if musicplay == nil then musicplay = true end
+
+colors = {
+	{226, 145, 145},
+	{153, 221, 146},
+	{147, 216, 185},
+	{148, 196, 211},
+	{148, 154, 206},
+	{179, 148, 204},
+	{204, 150, 177},
+	{204, 164, 153},
+	{223, 229, 146},
+	{255, 165, 96},
+	{107, 255, 99},
+	{101, 255, 204},
+	{101, 196, 255},
+	{101, 107, 255},
+	{173, 101, 255},
+	{255, 101, 244},
+	{255, 101, 132},
+	{255, 101, 101}
+}
 
 function love.arch(readyarch)
 	if readyarch == nil then
@@ -61,11 +82,6 @@ function fixmou(x, y)
 	else
 		return 2, 2
 	end
-end
-
-function hc(hex)
-	hex = hex:gsub("#","")
-	return tonumber("0x"..hex:sub(1,2)), tonumber("0x"..hex:sub(3,4)), tonumber("0x"..hex:sub(5,6))
 end
 
 function fit()
@@ -140,15 +156,15 @@ function love.graphics.paradraw(im, x, y, z)
 end
 
 love.window.setMode(2, 1, {fullscreen = true})
-love.window.setTitle("Bexolder")
+love.window.setTitle("ButtonPony")
 logo = love.graphics.newImage("bg.bmp")
 love.window.setIcon(logo:getData())
 fit()
 
 love.graphics.setDefaultFilter("nearest")
-love.graphics.setBackgroundColor(hc("#000000"))
+love.graphics.setBackgroundColor(colors[3])
 love.arch()
-menc = {{hc("#8c9880")}, {hc("#8c9880")}, {hc("#8c9880")}}
+menc = {colors[1], colors[1], colors[1]}
 if love.filesystem.exists("main.ttf") then
 	aqua = {
 		love.graphics.newFont("main.ttf", 170),
@@ -194,19 +210,19 @@ function love.update(dt)
 	if x ~= 2 and y ~= 2 then
 		turnin = {(x - 0.5) * 15, (y - 0.5) * 10}
 		if x > 0.02 and x < 0.235 and y > 0.3 and y < 0.55 then
-			menc[1] = {hc("#d0d4c4")}
+			menc[1] = colors[1]
 		else
-			menc[1] = {hc("#8c9880")}
+			menc[1] = colors[2]
 		end
 		if x > 0.02 and x < 0.15 and y > 0.55 and y < 0.7 then
-			menc[2] = {hc("#d0d4c4")}
+			menc[2] = colors[1]
 		else
-			menc[2] = {hc("#8c9880")}
+			menc[2] = colors[2]
 		end
 		if x > 0.02 and x < 0.13 and y > 0.8 and y < 0.95 then
-			menc[3] = {hc("#d0d4c4")}
+			menc[3] = colors[1]
 		else
-			menc[3] = {hc("#8c9880")}
+			menc[3] = colors[2]
 		end
 	end
 end
@@ -225,77 +241,6 @@ end
 
 function pause()
 	local pausearch = love.arch()
-	function love.keypressed(key)
-		if key == "3" then
-			love.window.setMode(2, 1, {borderless = true, fullscreen = true})
-			fit()
-		elseif key == "5" then
-			love.window.setMode(300, 300, {borderless = false, fullscreen = false})
-			fit()
-		elseif key == "4" then
-			love.window.setMode(600, 300, {borderless = true, fullscreen = false})
-			fit()
-		elseif key == "escape" then
-			love.arch(pausearch)
-		end
-	end
-	function love.mousepressed(x, y)
-		x, y = fixmou(x, y)
-		if x > 0.02 and x < 0.36 and y > 0.3 and y < 0.55 then
-			love.arch(pausearch)
-		elseif x > 0.02 and x < 0.15 and y > 0.55 and y < 0.7 then
-			oelse()
-		elseif x > 0.02 and x < 0.14 and y > 0.8 and y < 0.95 then
-			love.filesystem.load("main.lua")()
-		end
-	end
-	function love.update(dt)
-		x, y = fixmou(love.mouse.getX(), love.mouse.getY())
-		if x ~= 2 and y ~= 2 then
-			turnin = {(x - 0.5) * 15, (y - 0.5) * 10}
-			if x > 0.02 and x < 0.36 and y > 0.3 and y < 0.55 then
-				menc[1] = {hc("#d0d4c4")}
-			else
-				menc[1] = {hc("#8c9880")}
-			end
-			if x > 0.02 and x < 0.15 and y > 0.55 and y < 0.7 then
-				menc[2] = {hc("#d0d4c4")}
-			else
-				menc[2] = {hc("#8c9880")}
-			end
-			if x > 0.02 and x < 0.14 and y > 0.8 and y < 0.95 then
-				menc[3] = {hc("#d0d4c4")}
-			else
-				menc[3] = {hc("#8c9880")}
-			end
-		end
-	end
-	function love.draw()
-		love.graphics.scale(s, s)
-		love.graphics.translate(t[1], t[2])
-		love.graphics.setLineStyle("smooth")
-		love.graphics.setLineWidth(1)
-		love.graphics.setColor(hc("#303030"))
-		love.graphics.paradraw(mn, 850, 500, -5)
-		love.graphics.paradraw(cl, 1000, 350, -2)
-		love.graphics.paradraw(fr, 1000, 525, 4)
-		love.graphics.paradraw(hm, 700, 550, 7)
-		love.graphics.setFont(aqua[1])
-		love.graphics.setColor(hc("#d0d4c4"))
-		love.graphics.print("Bexolder", 45 + turnin[1], 110 + turnin[2])
-		love.graphics.setFont(aqua[2])
-		love.graphics.setColor(menc[1])
-		love.graphics.print("Continue", 46 + turnin[1], 300 + turnin[2])
-		love.graphics.setFont(aqua[3])
-		love.graphics.setColor(menc[2])	
-		love.graphics.print("Else", 50 + turnin[1], 440 + turnin[2])
-		love.graphics.setFont(aqua[4])
-		love.graphics.setColor(menc[3])	
-		love.graphics.print("Menu", 50 + turnin[1], 620 + turnin[2])
-		love.graphics.setColor(255, 255, 255, 255)
-		love.graphics.draw(mesh, meshp.x1, meshp.y1)
-		love.graphics.draw(mesh, meshp.x2, meshp.y2)
-	end
 end
 
 function love.draw()
@@ -303,13 +248,13 @@ function love.draw()
 	love.graphics.translate(t[1], t[2])
 	love.graphics.setLineStyle("smooth")
 	love.graphics.setLineWidth(1)
-	love.graphics.setColor(hc("#285438"))	
+	love.graphics.setColor(colors[6])	
 	love.graphics.paradraw(pn[1], 1000, 525, 4)
-	love.graphics.setColor(hc("#c4bca8"))
+	love.graphics.setColor(colors[6])
 	love.graphics.paradraw(pn[2], 700, 550, 7)
 	love.graphics.setFont(aqua[1])
-	love.graphics.setColor(hc("#d0d4c4"))
-	love.graphics.print("Bexolder", 45 + turnin[1], 110 + turnin[2])
+	love.graphics.setColor(colors[1])
+	love.graphics.print("ButtonPony", 45 + turnin[1], 110 + turnin[2])
 	love.graphics.setFont(aqua[2])
 	love.graphics.setColor(menc[1])
 	love.graphics.print("Start", 46 + turnin[1], 300 + turnin[2])
@@ -322,4 +267,10 @@ function love.draw()
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.draw(mesh, meshp.x1, meshp.y1)
 	love.graphics.draw(mesh, meshp.x2, meshp.y2)
+	for i,v in ipairs(colors) do
+		love.graphics.setColor(0, 0, 0)
+		love.graphics.rectangle("fill", i * 50 - 5, -30, 48, 30)
+		love.graphics.setColor(v)
+		love.graphics.print(i, i * 50, -20, 0, 0.3)
+	end
 end
