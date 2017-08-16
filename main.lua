@@ -1,7 +1,7 @@
 -- COPYRIGHT: KISELEV NIKOLAY
 -- Licence: MIT
 -- BUTTONPONY
--- Version: 0.9.9.9
+-- Version: 1.0
 
 fur = {w = 1500, h = 750}
 if musicplay == nil then musicplay = true end
