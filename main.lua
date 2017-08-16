@@ -1,7 +1,7 @@
 -- COPYRIGHT: KISELEV NIKOLAY
 -- Licence: MIT
 -- BUTTONPONY
--- Version: 0.0.2.1
+-- Version: 0.9.9.9
 
 fur = {w = 1500, h = 750}
 if musicplay == nil then musicplay = true end
@@ -168,7 +168,7 @@ function ostart()
 		else sec = sec + dt end
 		if nsec == nil or nsec > 0.01 then
 			nsec = 0
-			anima = anima + 80
+			anima = anima + 8
 		else nsec = nsec + dt end
 		if anima > 655 then
 			frame = 0
@@ -198,13 +198,13 @@ function love.draw()
 		love.graphics.paradraw(door, 1400 - anima, 375)
 		love.graphics.setFont(aqua[1])
 		love.graphics.setColor(0, 0, 0)
-		love.graphics.print("Не Домашний Пони", 45 - anima, 110, 0, 0.42, 0.8)
+		love.graphics.print("Поч дома нельзя пони", 45 - anima, 110, 0, 0.3, 0.8)
 		love.graphics.setFont(aqua[2])
 		love.graphics.setColor(menc[1])
-		love.graphics.print("Начать", 46 - anima, 300, 0, 0.4, 0.8)
+		love.graphics.print("Начать", 46 - anima, 300, 0, 0.6, 0.8)
 		love.graphics.setFont(aqua[4])
 		love.graphics.setColor(menc[2])	
-		love.graphics.print("Уйти", 50 - anima, 620, 0, 0.4, 1)
+		love.graphics.print("Уйти", 50 - anima, 620, 0, 0.6, 1)
 	else ostartdraw() end
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.draw(mesh, meshp.x1, meshp.y1)
@@ -220,38 +220,67 @@ end
 function oload()
 	love.graphics.setBackgroundColor(30, 30, 30)
 	love.physics.setMeter(fur.h * 0.4)
+	speed = true
+	money = 0	
 	frame = 1
 	move = 0
 	w = love.physics.newWorld(0, love.physics.getMeter() * 9.868464)
 	edges = {}
 		edges[1] = {}
 			edges[1].b = love.physics.newBody(w, 0, 0, "static")
-			edges[1].s = love.physics.newEdgeShape(0, 0, fur.w, 0)
+			edges[1].s = love.physics.newEdgeShape(0, 0, fur.w * 2, 0)
 			edges[1].f = love.physics.newFixture(edges[1].b, edges[1].s)
 		edges[2] = {}
 			edges[2].b = love.physics.newBody(w, 0, 0, "static")
-			edges[2].s = love.physics.newEdgeShape(0, fur.h, fur.w, fur.h)
+			edges[2].s = love.physics.newEdgeShape(0, fur.h, fur.w * 2, fur.h)
 			edges[2].f = love.physics.newFixture(edges[2].b, edges[2].s)
 	pony = {}
 		pony.b = love.physics.newBody(w, 350, 350, "dynamic")
-		pony.s = love.physics.newPolygonShape(-160, 90, -160, -0, 80, -140, 130, -140, 90, 130, 160, -0, -115, 130)
+		pony.s = love.physics.newPolygonShape(-160 * 0.8, 90 * 0.8, -160 * 0.8, -0 * 0.8, 80 * 0.8, -140 * 0.8, 130 * 0.8, -140 * 0.8, 90 * 0.8, 130 * 0.8, 160 * 0.8, -0 * 0.8, -115 * 0.8, 130 * 0.8)
 		pony.f = love.physics.newFixture(pony.b, pony.s, 1)
+	local obmeb = 1
+	mebel = {}
+	while love.filesystem.exists("img/" .. tostring(obmeb) .. ".bmp") do
+		mebel[#mebel + 1] = love.graphics.newImage("img/" .. tostring(obmeb) .. ".bmp")
+		obmeb = obmeb + 1
+	end
+	mbl = {}
+	techpoint = 600
+	while techpoint < fur.w + 150 do
+		local point = love.math.random(#mebel)
+		local at = mebel[point]
+		wid, hei = at:getDimensions()
+		wid = wid * 20
+		hei = hei * 20
+		mbl[#mbl + 1] = {im = at}
+			mbl[#mbl].b = love.physics.newBody(w, techpoint + wid / 2, 375, "dynamic")
+			mbl[#mbl].s = love.physics.newRectangleShape(wid, hei)
+			mbl[#mbl].f = love.physics.newFixture(mbl[#mbl].b, mbl[#mbl].s)
+		techpoint = techpoint + wid + 4
+	end
 end
 
 function otou(x, y)
 	x, y = fixmou(x, y)
-	if x > 0.5 then
-		--
-	else --
+	if speed then
+		speed = false		
+		if x > 0.5 then
+			pony.b:applyAngularImpulse(10000)
+			pony.b:applyForce(30000, -30000)
+		else
+			pony.b:applyAngularImpulse(10000)
+			pony.b:applyForce(-300, -30000)		
+		end
 	end
 end
 
 function oupdate(dt)
 	w:update(dt)
-	----------
+	edges[1].b:setX(pony.b:getX() - 300)
+	edges[2].b:setX(pony.b:getX() - 300)
 	if sec == nil or sec > 0.2 then
 		sec = 0
-		if frame ~= 1 then
+		if frame == 2 then
 			frame = 1
 		else
 			frame = 2
@@ -259,15 +288,41 @@ function oupdate(dt)
 	else
 		sec = sec + dt
 	end
-	----------
-	if droptime == nil or droptime > 3 then
-		droptime = 0
-		-- drop meble
-	else droptime = droptime + dt end
-	move = move + dt
+	if min == nil or min > 1 then
+		min = 0
+		speed = true
+	else
+		min = min + dt
+	end
+	if pony.b:getX() + 900 > techpoint then
+		local point = love.math.random(#mebel)
+		local at = mebel[point]
+		wid, hei = at:getDimensions()
+		wid = wid * 20
+		hei = hei * 20
+		mbl[#mbl + 1] = {im = at}
+			mbl[#mbl].b = love.physics.newBody(w, techpoint + wid / 2, 375, "dynamic")
+			mbl[#mbl].s = love.physics.newRectangleShape(wid, hei)
+			mbl[#mbl].f = love.physics.newFixture(mbl[#mbl].b, mbl[#mbl].s)
+		techpoint = techpoint + wid + love.math.random(300)
+		money = money + love.math.random(500) / 100
+	end
 end
 
 function ostartdraw()
+	love.graphics.translate(300 - pony.b:getX(), 0)
 	love.graphics.setColor(colors[16])
-	love.graphics.paradraw(pn[frame], pony.b:getX(), pony.b:getY())
+	love.graphics.draw(pn[frame], pony.b:getX(), pony.b:getY(), pony.b:getAngle(), 20, 20, pn[frame]:getWidth() / 2, pn[frame]:getHeight() / 2)
+	for i, v in ipairs(mbl) do
+		while colors[i] == nil do
+			i = i - #colors
+		end
+		love.graphics.setColor(colors[i])
+		love.graphics.draw(v.im, v.b:getX(), v.b:getY(), v.b:getAngle(), 20, 20, v.im:getWidth() / 2, v.im:getHeight() / 2)
+	end
+	ec = {love.graphics.getColor()}
+	love.graphics.setBackgroundColor(ec[1] / 4, ec[2] / 4, ec[3] / 4)
+	love.graphics.translate(-(300 - pony.b:getX()), 0)
+	love.graphics.setColor(colors[1])
+	love.graphics.print("-$"..tostring(money), 0, 20, 0, 0.4, 0.4)
 end
